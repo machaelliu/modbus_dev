@@ -1,0 +1,9 @@
+svr_srcs = Glob("*.cc")
+cpp_path= Split('/home/w/include /home/w/include/brpc/ /home/w/include/mysql_conn/ /usr/include /usr/local/include')
+cc_flags = Split('-Wall -g -O2 -std=c++11')
+cc = 'gcc'                                                                     
+cxx = 'g++' 
+
+face_objs = Object(svr_srcs, CPPPATH=cpp_path, CCFLAGS=cc_flags, CC=cc, CXX=cxx)
+Return('face_objs')
+

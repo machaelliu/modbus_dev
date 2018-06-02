@@ -1,0 +1,24 @@
+syntax="proto2";
+package data_server;
+
+message MysqlConf {
+  required string host = 1;
+  required int32 port = 2;
+  required string passwd = 3;
+  required string user = 4;
+  required string db_name = 5;
+}
+
+message RedisConf {
+  required string host = 1;
+  required int32 port = 2;
+}
+
+message ServerConfig {
+  required int32 svr_port = 1;
+  required string log4cpp_conf = 2;
+  required string brpc_log = 3;
+  required MysqlConf data_db = 4;
+  required string db_tab_name = 5;
+}
+

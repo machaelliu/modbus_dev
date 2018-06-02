@@ -1,0 +1,9 @@
+log4cpp.rootCategory = INFO, rootApp     
+log4cpp.appender.rootApp =org.apache.log4cpp.RollingFileAppender
+log4cpp.appender.rootApp.fileName = ../log/face.log
+log4cpp.appender.rootApp.maxFileSize = 104857600
+log4cpp.appender.rootApp.maxFileAge = 604800
+log4cpp.appender.rootApp.maxBackupIndex = 10
+log4cpp.appender.rootApp.append = true
+log4cpp.appender.rootApp.layout = org.apache.log4cpp.PatternLayout
+log4cpp.appender.rootApp.layout.ConversionPattern = %d{%Y-%m-%d %H:%M:%S} [%p]: %m%n
