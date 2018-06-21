@@ -16,6 +16,7 @@ namespace data_server {
     E_DB,
 
     E_LOG_CONF,
+    E_REQ_CONTENT,
   };
 
   extern std::unordered_map<int, std::string> g_err_map; 

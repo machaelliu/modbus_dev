@@ -13,54 +13,40 @@
 #include "data2server.pb.h"
 #include "db_connector.h"
 #include "log.h"
+#include "util.h"
 #include "rpc_server.h"
 #include "err_code.h"
 
 using data_server::ServerConfig;
 using data_server::DBConn;
+using data_server::g_err_map;
 namespace data2server {
 void DataServiceImpl::Send(google::protobuf::RpcController* cntl_base,
     const DataReq* request,
     DataResp* response,
     google::protobuf::Closure* done) {
   brpc::ClosureGuard done_guard(done);
-  brpc::Controller* cntl = static_cast<brpc::Controller*>(cntl_base);
-
-  DBConn* db_conn = static_cast<DBConn*>(brpc::thread_local_data());
-  if (db_conn == NULL) {
-    LOG_ERROR << "db conn is NULL";
-    MakeErrResp(data_server::E_SYSTEM; 
-        data_srver::g_err_map[data_server::E_SYSTEM], response);
+  string resp_data;
+  brpc::Controller* cntl = static_cast<brpc::Controller*>(cntl_base); 
+  AsyncJob* job = new (std::nothrow) AsyncJob(cntl, done, request); 
+  if (job == NULL) {
+    LOG_ERROR << "job new failed";
+    data_server_util::MakeErrResp(data_server::E_SYSTEM, 
+        g_err_map[data_server::E_SYSTEM], response);
     return;
   }
 
-  try {
-    std::unique_ptr<sql::ResultSet> res(db_conn->stmt_->executeQuery(
-          "SELECT SUM(impression) AS imp_sum FROM " + db_table_name_ 
-          + " WHERE order_date="
-          + date + " AND status = 1 AND product_type = " 
-          + std::to_string(ad_type)));
-
-    if (res->rowsCount() == 0) {
-      *count = conf_count;
-      return 0;
-    }
-
-    res->next(); 
-    ordered_count = res->getUInt64("imp_sum");
-  } catch(std::Exception &e) {
-    LOG_ERROR << "db exception:" << e.what();
-    MakeErrResp(data_server::E_DB; data_srver::g_err_map[data_server::E_DB], 
-        response);
+  bthread_t th;
+  int ret = bthread_start_background(&th, NULL, AsyncJob::Worker, job);
+  if (ret != 0) {
+    LOG_ERROR << "bthread start err:" << berror(ret); 
+    data_server_util::MakeErrResp(data_server::E_SYSTEM, 
+        g_err_map[data_server::E_SYSTEM], response);
     return;
-  } 
+  }
+
+  done_guard.release();
 }
 
-void DataServiceImpl::MakeErrResp(int errcode, const string& errmsg, 
-    DataResp* resp) {
-  resp->set_errcode(errcode);
-  resp->set_errmsg(errmsg);
-}
-
-}  // namespace data_server
+}  // namespace data2server
 

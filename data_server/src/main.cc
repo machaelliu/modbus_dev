@@ -68,8 +68,8 @@ int main(int argc, char* argv[]) {
   // Start the server.
   brpc::ServerOptions options;
   DBConnFactory db_conn_factory;
-  options.thread_local_data_factory  = &db_conn_factory;
-  options.reserved_thread_local_data = 10;
+  options.session_local_data_factory  = &db_conn_factory;
+  options.reserved_session_local_data = 10;
   if (server.Start(svr_conf.svr_port(), &options) != 0) {
     LOG_ERROR << "Fail to start data_server";
     return EXIT_FAILURE;

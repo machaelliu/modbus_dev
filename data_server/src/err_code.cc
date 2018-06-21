@@ -16,6 +16,7 @@ void InitErrCode() {
   g_err_map[E_SYSTEM] = "system";
   g_err_map[E_DB] = "database";
   g_err_map[E_LOG_CONF] = "log config";
+  g_err_map[E_REQ_CONTENT] = "req content";
 }
 
 }  // namespace data_server

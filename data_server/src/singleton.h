@@ -1,6 +1,6 @@
 /**********************************************************
  * Author        : qingtao
- * Email         : qingtao5@staff.weibo.com
+ * Email         : lqt641@163.com
  * Create time   : 2018-05-25 11:07
  * Last modified : 2018-05-25 11:08
  * Filename      : singleton.h

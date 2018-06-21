@@ -1,6 +1,6 @@
 /**********************************************************
  * Author        : qingtao
- * Email         : qingtao5@staff.weibo.com
+ * Email         : lqt641@163.com
  * Create time   : 2018-05-14 14:19
  * Last modified : 2018-05-14 14:19
  * Filename      : util.cc
@@ -15,7 +15,7 @@ using ::std::cout;
 using ::std::cerr;
 using ::std::endl;
 
-namespace face_util {
+namespace data_server_util {
 
 bool Split(const std::string &s, const std::string& delim, 
     std::vector<std::string>* elems) {
@@ -113,4 +113,9 @@ std::string& Trim(std::string& s) {
   return ltrim(rtrim(s));
 }
 
-}  //namespace face_util 
+void MakeErrResp(int errcode, const string& errmsg, DataResp* resp) {
+  resp->set_errcode(errcode);
+  resp->set_errmsg(errmsg);
+}
+
+}  //namespace data_server_util 
