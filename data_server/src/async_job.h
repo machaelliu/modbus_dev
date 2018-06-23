@@ -29,7 +29,8 @@ class AsyncJob {
   int CheckRequest(const DataReq& req_data, brpc::Controller *cntl);
   brpc::Controller* cntl_;
   google::protobuf::Closure* done_;
-  DataResp* response_;
+  DataReq* req_;
+  DataResp* resp_;
 };
 
 } // namespace kepler_face

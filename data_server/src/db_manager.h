@@ -35,10 +35,13 @@ class DBManager {
     db_passwd_ = db.passwd();
     db_user_ = db.user();
     db_name_ = db.db_name();
+    data_point_table_ = svr_conf_.data_point_table();
+    mod_data_table_ = svr_conf_.mod_data_table();
     int ret = Connect();
     if (ret != 0) exit(0);
   }
   int Connect();
+  int InsertData(const uint64_t id, const DataReq& req);
 
  private:
    std::unique_ptr<sql::Statement> stmt_;
@@ -49,6 +52,8 @@ class DBManager {
    std::string db_passwd_; 
    std::string db_user_; 
    std::string db_name_; 
+   std::string data_point_table_; 
+   std::string mod_data_table_; 
 };
 
 class DBConnFactory: public brpc::DataFactory {

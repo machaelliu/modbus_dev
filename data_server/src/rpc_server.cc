@@ -35,7 +35,10 @@ void DataServiceImpl::Send(google::protobuf::RpcController* cntl_base,
         g_err_map[data_server::E_SYSTEM], response);
     return;
   }
-
+  job->cntl_ = cntl;
+  job->req_ = request;
+  job->resp_ = response;
+  job->done_ = done;
   bthread_t th;
   int ret = bthread_start_background(&th, NULL, AsyncJob::Worker, job);
   if (ret != 0) {

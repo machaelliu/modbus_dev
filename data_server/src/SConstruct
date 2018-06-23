@@ -2,8 +2,9 @@ libs = Split('brpc leveldb protobuf pthread log4cpp jsoncpp mysqlcppconn base')
 lib_path = Split('/home/w/lib64')
 cc = 'gcc'                                                                     
 cxx = 'g++' 
+rpath = Split('/home/w/lib64')
 
 face_objs = SConscript('SConscript')
 
 svr_target = 'face_http_server'
-Program(svr_target, face_objs, LIBS=libs, LIBPATH=lib_path, CC=cc, CXX=cxx)
+Program(svr_target, face_objs, LIBS=libs, LIBPATH=lib_path, CC=cc, CXX=cxx, RPATH=rpath)

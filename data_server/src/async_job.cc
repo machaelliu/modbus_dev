@@ -14,7 +14,6 @@
 #include "async_job.h"
 #include "err_code.h"
 #include "util.h"
-#include "common.h"
 
 using ::std::string;
 using ::std::unordered_set;
@@ -22,8 +21,7 @@ using ::std::map;
 using ::std::cout;
 using ::std::cerr;
 using ::std::endl;
-using kepler_face::g_err_map;
-namespace kepler_face {
+namespace data_server {
 void* AsyncJob::Worker(void* args) {
   AsyncJob* job = static_cast<AsyncJob*>(args);
   job->RunAndDelete();
@@ -38,13 +36,32 @@ void AsyncJob::RunAndDelete() {
 void AsyncJob::Run() {
   brpc::ClosureGuard done_guard(done_);
 
-  int ret = CheckRequest(req_data, response);
+  int ret = CheckRequest(*req_, cntl_);
   if (ret != 0) {
-    data_server_util::MakeErrResp(E_REQ_CONTENT, 
-        g_err_map[E_REQ_CONTENT], response);
+    data_server_util::MakeErrResp(E_REQ_CONTENT, g_err_map[E_REQ_CONTENT], resp_);
     return;
   }
 
+  auto& id_manager = Singleton<IdManager>::Instance();
+  uint64_t id = 0;
+  int ret = id_manager->GetId(cntl_, req_, &id);
+  if (ret != 0) {
+    data_server_util::MakeErrResp(ret, g_err_map[ret], resp_);
+    return;
+  }
+  DBManager* db_manager = static_cast<DBManager*>(cntl->session_local_data());
+  ret = db_manager->InsertData(id, req_);
+  if (ret != 0) {
+    data_server_util::MakeErrResp(ret, g_err_map[ret], resp_);
+    return;
+  }
+
+  id_manager->UpdateDataTime(req_->data_time);
+
+  resp_->set_errcode(0);
+  resp_->set_errmsg("OK");
+
+  return;
 }
 
 int AsyncJob::CheckRequest(const DataReq& req_data, brpc::Controller *cntl) {
@@ -52,12 +69,9 @@ int AsyncJob::CheckRequest(const DataReq& req_data, brpc::Controller *cntl) {
  // const string& remote_ip(inet_ntoa(cntl->remote_side().ip));
  // auto it = white_ips.find(remote_ip);
  // if (it == white_ips.end()) {
- //   string err_json = kepler_face::MakeErrResp(kepler_face::E_REMOTE_IP, 
- //       "your ip has no authorization");
- //   cntl->response_attachment().append(err_json);
- //   return kepler_face::E_REMOTE_IP;
+ //   return data_server::E_REMOTE_IP;
  // }
   return 0;
 }
 
-} // namespace kepler_face
+} // namespace data_server

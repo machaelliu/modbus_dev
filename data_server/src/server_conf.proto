@@ -19,6 +19,7 @@ message ServerConfig {
   required string log4cpp_conf = 2;
   required string brpc_log = 3;
   required MysqlConf data_db = 4;
-  required string db_tab_name = 5;
+  required string data_point_table = 5;
+  required string mod_data_table = 6;
 }
 
