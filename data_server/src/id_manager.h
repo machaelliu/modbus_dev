@@ -21,7 +21,8 @@ struct DBIdInfo {
 
 class IdManager {
  public:
-   int GetId(brpc::Controller* cntl, const DataReq& req, uint64_t* id);
+   int GetId(brpc::Controller* cntl, const std::string& id_key, 
+       const DataReq& req, uint64_t* id);
  private: 
    std::unordered_map<std::string, DBIdInfo> data2id_;
    mutable std::shared_mutex mutex_;

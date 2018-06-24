@@ -6,11 +6,11 @@ message DataReq {
 required string building = 1;  // 建筑名称
 required string collector = 2; // 采集器名称
 required uint32 conn_type = 3; // 采集器与仪表连接类型 , 0:rtu 1:tcp  2:rtu over tcp 
-required string meter = 4; // 仪表名称
+required string device = 4; // 仪表名称
 required float orig_data = 5;  // 仪表中原始数据
-required float scaled_data = 6; // 缩放后数据: scaled_data = A*orig_data + B
-required string data_desc = 7;  // 数据描述，电压、电流等
-required string data_unit = 8;  // 数据单位，安培、毫安等
+required float scale_data = 6; // 缩放后数据: scale_data = A*orig_data + B
+required string desc = 7;  // 数据描述，电压、电流等
+required string unit = 8;  // 数据单位，安培、毫安等
 required float coef_A = 9; // 放大系数 A
 required float coef_B = 10; // 偏移系数 B
 required string data_time = 11; // 数据采集时间

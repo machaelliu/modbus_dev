@@ -44,7 +44,10 @@ void AsyncJob::Run() {
 
   auto& id_manager = Singleton<IdManager>::Instance();
   uint64_t id = 0;
-  int ret = id_manager->GetId(cntl_, req_, &id);
+  string id_key(req_->building() + "_" + req_->collector() + "_" 
+      + std::to_string(req_->conn_type()) + "_" + req_->device()
+      + "_" + req_->desc() + req_->unit());
+  int ret = id_manager->GetId(cntl_, id_key, req_, &id);
   if (ret != 0) {
     data_server_util::MakeErrResp(ret, g_err_map[ret], resp_);
     return;
@@ -55,8 +58,6 @@ void AsyncJob::Run() {
     data_server_util::MakeErrResp(ret, g_err_map[ret], resp_);
     return;
   }
-
-  id_manager->UpdateDataTime(req_->data_time);
 
   resp_->set_errcode(0);
   resp_->set_errmsg("OK");

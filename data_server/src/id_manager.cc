@@ -9,17 +9,22 @@
 #include "db_manager.h"
 #include "id_manager.h"
 namespace data_server {
-  int IdManager::GetId(brpc::Controller* cntl, const DataReq& req, uint64_t* id) {
-    string id_key(req_->building() + "_" + req_->collector() + "_" 
-        + std::to_string(req_->conn_type()) + "_" + req_->device()
-        + "_" + req_->desc() + req_->unit());
+  int IdManager::GetId(brpc::Controller* cntl, const string& id_key, 
+      const DataReq& req, uint64_t* id) {
+    bool exist = false; 
+    std::unordered_map<std::string, DBIdInfo>::iterator it;  
     {
       std::shared_lock<std::shared_mutex> lock(mutex_);
-      auto it = data2id_.find(id_key); 
+      it = data2id_.find(id_key); 
       if (it != data2id_.end()) {
-        *id = it->id_;
-        return 0;
+        *id = it->second.id_;
+        exist = true;
       }
+    }
+
+    if (exist) {
+      it->second.latest_data_time_ = time(NULL);
+      return  0;
     }
 
     // not in cache map
@@ -32,7 +37,8 @@ namespace data_server {
     int ret = db_manager->GetId(req, id);
     if (ret == 0) {  // exist in db
       std::unique_lock<std::shared_mutex> lock(mutex_);
-      data2id_[id_key] = id;
+      data2id_[id_key].id_ = id;
+      data2id_[id_key].latest_data_time_ = time(NULL);
       return 0;
     } else if (ret == E_NOT_EXIST_IN_DB) {
       ret = db_manager->InsertDataPoint(req);
@@ -41,6 +47,7 @@ namespace data_server {
       if (ret != 0) return ret;
       std::unique_lock<std::shared_mutex> lock(mutex_);
       data2id_[id_key] = id;
+      data2id_[id_key].latest_data_time_ = time(NULL);
     } else {  // error
       return ret;
     }
